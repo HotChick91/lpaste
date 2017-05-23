@@ -52,18 +52,12 @@ sendIfNickExists AnnounceConfig{..} (Announcement origin line) = do
   handle <- connectTo announceHost (PortNumber $ fromIntegral announcePort)
   hSetBuffering handle LineBuffering
   let send = B.hPutStrLn handle . encodeUtf8
-  send $ "PASS " ++ pack announcePass
-  send $ "USER " ++ pack announceUser ++ " * * *"
+  send $ "USER " ++ pack announceUser ++ " 0 * :" ++ pack announceUser
   send $ "NICK " ++ pack announceUser
-  send $ "WHOIS :" ++ origin
-  fix $ \loop -> do
-    incoming <- T.hGetLine handle
-    case T.takeWhile isDigit (T.drop 1 (T.dropWhile (/=' ') incoming)) of
-      "311" -> send line
-      "401" -> return ()
-      _ -> loop
+  send line
 
 -- | Announce something to the IRC.
 announce :: Announcer -> Text -> Text -> Text -> IO ()
 announce Announcer{annChan=chan} nick channel line = do
-  io $ writeChan chan $ Announcement nick ("PRIVMSG " ++ channel ++ " :" ++ line)
+  io $ writeChan chan $ Announcement nick ("JOIN " ++ channel ++ "\n" ++
+      "PRIVMSG " ++ channel ++ " :" ++ line)
