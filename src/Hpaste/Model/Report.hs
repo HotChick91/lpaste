@@ -23,7 +23,6 @@ import           Data.Maybe
 import           Data.Monoid.Operator ((++))
 import qualified Data.Text as T
 import qualified Data.Text.Lazy as LT
-import           Network.Mail.Mime
 import           Prelude              hiding ((++))
 import           Snap.App
 
@@ -60,22 +59,4 @@ createReport rs@ReportSubmit{..} = do
         resetCacheModel (Key.Paste pid)
         resetCacheModel (Key.Revision pid)
   reset rsPaste
-  sendReport rs
   return res
-
-sendReport :: ReportSubmit -> Model Config s ()
-sendReport ReportSubmit{..} = do
-  conf <- env modelStateConfig
-  m <- io $ simpleMail (configAdmin conf)
-		       (configSiteAddy conf)
-		       (T.pack ("Paste reported: #" ++ show rsPaste))
-		       (LT.pack body)
-		       (LT.pack body)
-		       []
-  io $ renderSendMail m
-
-  where body =
-  	  "Paste " ++ show rsPaste ++ "\n\n" ++
-	  "http://hpaste.org/" ++ show rsPaste ++ "?show_private=true" ++
-	  "\n\n" ++
-	  rsComments
