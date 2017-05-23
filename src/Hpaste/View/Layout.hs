@@ -29,21 +29,12 @@ layoutPage Page{..} = do
       title $ toMarkup $ pageTitle ++ " :: lpaste — Lambda pastebin"
       script $
         "hljs.tabReplace = '    ';hljs.initHighlightingOnLoad();"
-    body ! A.id (toValue pageName) $ do
+    body ! A.id (toValue pageName) $
       wrap $ do
         nav
         logo
         pageBody
         foot
-      preEscapedString "<script type=\"text/javascript\"> var _gaq = _gaq \
-                       \|| []; _gaq.push(['_setAccount', 'UA-7443395-10']);\
-                       \ _gaq.push(['_trackPageview']); (function() {var ga\
-                       \ = document.createElement('script'); ga.type = 'tex\
-                       \t/javascript'; ga.async = true; ga.src = ('https:' \
-                       \== document.location.protocol ? 'https://ssl' : \
-                       \'http://www') + '.google-analytics.com/ga.js'; var\
-                       \ s = document.getElementsByTagName('script')[0]; \
-                       \s.parentNode.insertBefore(ga, s);})(); </script>"
 
     where js s = script ! A.type_ "text/javascript"
                         ! A.src ("/js/" ++ s) $
